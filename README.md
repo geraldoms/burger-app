@@ -1,6 +1,6 @@
 # React Burger App
 
-Based on Maximilian Schwarzmüller's course [React - The Complete Guide](https://www.udemy.com/react-the-complete-guide-incl-redux)
+Based on Maximilian Schwarzmüller's course [React - The Complete Guide](https://learning.oreilly.com/videos/react-the/9781789132229)
 
 ### Installation
 `$ npm i`
