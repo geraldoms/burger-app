@@ -1,6 +1,6 @@
 import React from 'react';
 
-const navigationItems = props => (
+const navigationItems = (props) => (
   <ul>
     <li>
       <a href="/">A Link</a>
