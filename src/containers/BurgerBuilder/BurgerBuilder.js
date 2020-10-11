@@ -4,6 +4,8 @@ import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import axios from '../../axios-orders';
+import Spinner from '../../components/UI/Spinner/Spinner';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 const INGREDIENT_PRICES = {
   salad: 0.5,
@@ -23,6 +25,7 @@ class BurderBuilder extends Component {
     totalPrice: 4,
     purchasable: false,
     purchasing: false,
+    loading: false,
   };
 
   updatePurchaseState(ingredients) {
@@ -70,15 +73,16 @@ class BurderBuilder extends Component {
 
   purchaseContinueHandler = () => {
     // alert('You continue!');
+    this.setState({ loading: true });
     const order = {
       ingredients: this.state.ingredients,
       price: this.state.totalPrice,
       customer: {
         name: 'John Sure',
         zipCode: '12345',
-        country: 'EUA'
+        country: 'EUA',
       },
-      email: 'test@gmail.com'
+      email: 'test@gmail.com',
     };
     axios
       .post('/orders.json', order)
@@ -87,6 +91,9 @@ class BurderBuilder extends Component {
       })
       .catch((err) => {
         console.log('Error: ' + err);
+      })
+      .finally(() => {
+        this.setState({ loading: false, purchasing: false });
       });
   };
 
@@ -103,12 +110,15 @@ class BurderBuilder extends Component {
           show={this.state.purchasing}
           modalClosed={this.purchaseCancelHandler}
         >
-          <OrderSummary
-            ingredients={this.state.ingredients}
-            price={this.state.totalPrice}
-            purchaseCancelled={this.purchaseCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-          />
+          {this.state.loading && <Spinner />}
+          {!this.state.loading && (
+            <OrderSummary
+              ingredients={this.state.ingredients}
+              price={this.state.totalPrice}
+              purchaseCancelled={this.purchaseCancelHandler}
+              purchaseContinued={this.purchaseContinueHandler}
+            />
+          )}
         </Modal>
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
@@ -124,4 +134,4 @@ class BurderBuilder extends Component {
   }
 }
 
-export default BurderBuilder;
+export default withErrorHandler(BurderBuilder, axios);
