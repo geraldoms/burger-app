@@ -16,16 +16,12 @@ const INGREDIENT_PRICES = {
 
 class BurderBuilder extends Component {
   state = {
-    ingredients: {
-      salad: 0,
-      bacon: 0,
-      cheese: 0,
-      meat: 0,
-    },
+    ingredients: null,
     totalPrice: 4,
     purchasable: false,
     purchasing: false,
     loading: false,
+    error: false,
   };
 
   updatePurchaseState(ingredients) {
@@ -71,6 +67,17 @@ class BurderBuilder extends Component {
     this.setState({ purchasing: false });
   };
 
+  componentDidMount() {
+    axios
+      .get('https://react-my-burger-e5682.firebaseio.com/ingredients.json')
+      .then((resp) => {
+        this.setState({ ingredients: resp.data });
+      })
+      .catch((err) => {
+        this.setState({ error: true });
+      });
+  }
+
   purchaseContinueHandler = () => {
     // alert('You continue!');
     this.setState({ loading: true });
@@ -111,7 +118,7 @@ class BurderBuilder extends Component {
           modalClosed={this.purchaseCancelHandler}
         >
           {this.state.loading && <Spinner />}
-          {!this.state.loading && (
+          {!this.state.loading && this.state.ingredients && (
             <OrderSummary
               ingredients={this.state.ingredients}
               price={this.state.totalPrice}
@@ -120,15 +127,25 @@ class BurderBuilder extends Component {
             />
           )}
         </Modal>
-        <Burger ingredients={this.state.ingredients} />
-        <BuildControls
-          ingredientAdded={this.addIngredientHandler}
-          ingredientRemoved={this.removeIngredientHandler}
-          disabled={disabledInfo}
-          purchasable={this.state.purchasable}
-          price={this.state.totalPrice}
-          ordered={this.purchaseHandler}
-        />
+        {!this.state.ingredients &&
+          (!this.state.error ? (
+            <Spinner />
+          ) : (
+            <p>Ingredients can't be loaded!</p>
+          ))}
+        {this.state.ingredients && (
+          <>
+            <Burger ingredients={this.state.ingredients} />
+            <BuildControls
+              ingredientAdded={this.addIngredientHandler}
+              ingredientRemoved={this.removeIngredientHandler}
+              disabled={disabledInfo}
+              purchasable={this.state.purchasable}
+              price={this.state.totalPrice}
+              ordered={this.purchaseHandler}
+            />
+          </>
+        )}
       </>
     );
   }
