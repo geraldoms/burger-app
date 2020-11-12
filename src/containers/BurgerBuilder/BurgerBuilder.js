@@ -79,31 +79,20 @@ class BurderBuilder extends Component {
   }
 
   purchaseContinueHandler = () => {
-    // this.setState({ loading: true });
-    // const order = {
-    //   ingredients: this.state.ingredients,
-    //   price: this.state.totalPrice,
-    //   customer: {
-    //     name: 'John Sure',
-    //     zipCode: '12345',
-    //     country: 'EUA',
-    //   },
-    //   email: 'test@gmail.com',
-    // };
-    // axios
-    //   .post('/orders.json', order)
-    //   .then((resp) => {
-    //     console.log(resp);
-    //     this.props.history.push('/checkout');
-    //   })
-    //   .catch((err) => {
-    //     console.log('Error: ' + err);
-    //   })
-    //   .finally(() => {
-    //     this.setState({ loading: false, purchasing: false });
-    //   });
-
-      this.props.history.push('/checkout');
+    const queryParams = [];
+    for (let e in this.state.ingredients) {
+      queryParams.push(
+        encodeURIComponent(e) +
+          '=' +
+          encodeURIComponent(this.state.ingredients[e])
+      );
+    }
+    queryParams.push('price=' + this.state.totalPrice);
+    const queryString = queryParams.join('&');
+    this.props.history.push({
+      pathname: '/checkout',
+      search: '?' + queryString,
+    });
   };
 
   render() {
