@@ -19,6 +19,7 @@ class ContactData extends Component {
           required: true,
         },
         valid: false,
+        touched: false,
       },
       street: {
         elementType: 'input',
@@ -31,6 +32,7 @@ class ContactData extends Component {
           required: true,
         },
         valid: false,
+        touched: false,
       },
       zipCode: {
         elementType: 'input',
@@ -45,6 +47,7 @@ class ContactData extends Component {
           maxLength: 5,
         },
         valid: false,
+        touched: false,
       },
       country: {
         elementType: 'input',
@@ -57,6 +60,7 @@ class ContactData extends Component {
           required: true,
         },
         valid: false,
+        touched: false,
       },
       email: {
         elementType: 'input',
@@ -81,6 +85,7 @@ class ContactData extends Component {
         value: 'fatest',
       },
     },
+    formIsValid: false,
     loading: false,
   };
 
@@ -111,6 +116,9 @@ class ContactData extends Component {
 
   checkValidity(value, rules) {
     let isValid = true;
+    if (!rules) {
+      return true;
+    }
     if (rules.required) {
       isValid = value.trim() !== '' && isValid;
     }
@@ -131,9 +139,17 @@ class ContactData extends Component {
       updatedFormElement.value,
       updatedFormElement.validation
     );
+    updatedFormElement.touched = true;
     updatedOrderForm[field] = updatedFormElement;
-    console.log(updatedFormElement);
-    this.setState({ orderForm: updatedOrderForm });
+
+    let formIsValid = true;
+    for (let key in updatedOrderForm) {
+      if (updatedOrderForm[key].valid === false) {
+        formIsValid = false;
+        break;
+      }
+    }
+    this.setState({ orderForm: updatedOrderForm, formIsValid });
   };
 
   render() {
@@ -153,10 +169,14 @@ class ContactData extends Component {
             elementType={e.config.elementType}
             elementConfig={e.config.elementConfig}
             value={e.config.value}
+            invalid={!e.config.valid}
+            shouldValidate={e.config.validation && e.config.touched}
             changed={(event) => this.inputChangedHandler(event, e.id)}
           />
         ))}
-        <Button btnType="Success">ORDER</Button>
+        <Button btnType="Success" disabled={!this.state.formIsValid}>
+          ORDER
+        </Button>
       </form>
     );
     if (this.state.loading) {
